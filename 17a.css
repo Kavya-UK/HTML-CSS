@@ -1,0 +1,36 @@
+body{
+    height: 3000px;
+}
+
+.box{
+     position: fixed; 
+    background-color: lightpink;
+     right: 20px; 
+    bottom: 20px; 
+     width: 320px; 
+     height: 180px;     
+    
+}
+.close-button{
+position: absolute;
+    background-color:red;
+    color: white;
+    right: 20px;
+    top: 20px;
+}
+.parent{
+    /* position: relative; */
+}
+
+.div1{
+    background-color: aqua;
+    /* position:absolute; */
+    top: 1px;
+}
+.div2{
+    position: absolute;
+    background-color:blueviolet;
+}
+.div3{
+    background-color: red;
+}
