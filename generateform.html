@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Form to JSON</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  #formContainer {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f5f5f5;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin: auto;
+  }
+
+  .group {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background-color: #ffffff;
+  }
+
+  .condition {
+    margin-top: 10px;
+  }
+
+  button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  pre {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+</style>
+</head>
+<body>
+
+<div id="formContainer">
+  <button type="button" onclick="addGroup()">Add Group</button>
+</div>
+
+<button type="button" onclick="generateJSON()">Generate JSON</button>
+
+<pre id="jsonResult"></pre>
+
+<script>
+let groupCounter = 0;
+
+const typeOptions = ["account type", "state", "zipcode"];
+const operatorOptions = ["NOT_EQUAL", "EQUAL_TO", "CONTAINS"];
+
+function addGroup() {
+  groupCounter++;
+  
+  const groupDiv = document.createElement("div");
+  groupDiv.className = "group";
+  groupDiv.id = `group${groupCounter}`;
+  groupDiv.innerHTML = `
+    <h2>Group ${groupCounter}</h2>
+    <button type="button" onclick="addCondition(${groupCounter})">Add Condition</button>
+    <div id="group${groupCounter}-conditions"></div>
+    <label for="group${groupCounter}-group-separator">Group Separator:</label>
+    <select id="group${groupCounter}-group-separator">
+      <option value="AND">AND</option>
+      <option value="OR">OR</option>
+    </select>
+  `;
+  
+  document.getElementById("formContainer").appendChild(groupDiv);
+}
+
+function addCondition(groupId) {
+  const conditionsContainer = document.getElementById(`group${groupId}-conditions`);
+  const conditionDiv = document.createElement("div");
+  conditionDiv.className = "condition";
+  conditionDiv.innerHTML = `
+    <label for="group${groupId}-type">Type:</label>
+    <select id="group${groupId}-type" name="group${groupId}-type">
+      ${typeOptions.map(option => `<option value="${option}">${option}</option>`).join("")}
+    </select>
+    
+    <label for="group${groupId}-operator">Operator:</label>
+    <select id="group${groupId}-operator" name="group${groupId}-operator">
+      ${operatorOptions.map(option => `<option value="${option}">${option}</option>`).join("")}
+    </select>
+    
+    <label for="group${groupId}-value">Value:</label>
+    <input type="text" id="group${groupId}-value" name="group${groupId}-value">
+    
+    <label for="group${groupId}-condition-separator">Condition Separator:</label>
+    <select id="group${groupId}-condition-separator" name="group${groupId}-condition-separator">
+      <option value="AND">AND</option>
+      <option value="OR">OR</option>
+    </select>
+  `;
+  
+  conditionsContainer.appendChild(conditionDiv);
+}
+
+function generateJSON() {
+  const groups = [];
+
+  const groupElements = document.getElementsByClassName("group");
+  for (const groupElement of groupElements) {
+    const groupId = groupElement.id.match(/\d+/)[0];
+    
+    const conditions = [];
+    const conditionElements = groupElement.getElementsByClassName("condition");
+    for (const conditionElement of conditionElements) {
+      const condition = {
+        type: document.getElementById(`group${groupId}-type`).value,
+        operator: document.getElementById(`group${groupId}-operator`).value,
+        value: document.getElementById(`group${groupId}-value`).value,
+        condition_separator: document.getElementById(`group${groupId}-condition-separator`).value
+      };
+      conditions.push(condition);
+    }
+    
+    const groupSeparator = document.getElementById(`group${groupId}-group-separator`).value;
+    
+    const group = {
+      conditions: conditions,
+      group_separator: groupSeparator
+    };
+    groups.push(group);
+  }
+
+  const formData = {
+    groups: groups
+  };
+
+  const jsonResult = JSON.stringify(formData, null, 2);
+  document.getElementById("jsonResult").textContent = jsonResult;
+}
+</script>
+
+</body>
+</html>
